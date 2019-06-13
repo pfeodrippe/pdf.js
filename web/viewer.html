@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!--
 Copyright 2012 Mozilla Foundation
 
@@ -37,7 +37,11 @@ See https://github.com/adobe-type-tools/cmap-resources
 <!--#endif-->
 <!--#if CHROME-->
 <!--#include viewer-snippet-chrome-extension.html-->
-<!--#endif-->
+    <!--#endif-->
+
+    <script src="remotestorage.js"></script>
+	  <script src="remotestorage-module.js"></script>
+    <script src="widget.js"></script>
 
     <link rel="stylesheet" href="viewer.css">
 <!--#if !PRODUCTION-->

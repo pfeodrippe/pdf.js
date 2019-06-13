@@ -47,6 +47,7 @@ import { PDFViewer } from './pdf_viewer';
 import { SecondaryToolbar } from './secondary_toolbar';
 import { Toolbar } from './toolbar';
 import { ViewHistory } from './view_history';
+//import { RemoteStorage } from './remotestorage';
 
 const DEFAULT_SCALE_DELTA = 1.1;
 const DISABLE_AUTO_FETCH_LOADING_BAR_TIMEOUT = 5000; // ms
@@ -58,6 +59,23 @@ const ViewOnLoad = {
   PREVIOUS: 0, // Default value.
   INITIAL: 1,
 };
+
+var remoteStorage = new RemoteStorage({
+  changeEvents: { local: true, window: true, remote: true, conflicts: true },
+  modules: [SyncPdfJs]
+});
+
+function updateSyncPdfJs(obj) {
+  remoteStorage.syncpdfjs.update(obj);
+}
+
+function init() {
+  remoteStorage.access.claim('syncpdfjs', 'rw');
+  remoteStorage.caching.enable('/syncpdfjs/');
+  var widget = new Widget(remoteStorage);
+  widget.attach();
+  remoteStorage.syncpdfjs.init();
+}
 
 const DefaultExternalServices = {
   updateFindControlState(data) {},
@@ -878,6 +896,8 @@ let PDFViewerApplication = {
   load(pdfDocument) {
     this.pdfDocument = pdfDocument;
 
+    init();
+
     pdfDocument.getDownloadInfo().then(() => {
       this.downloadComplete = true;
       this.loadingBar.hide();
@@ -939,6 +959,8 @@ let PDFViewerApplication = {
         storePromise, pageLayoutPromise, pageModePromise, openActionDestPromise,
       ]).then(async ([values = {}, pageLayout, pageMode, openActionDest]) => {
         const viewOnLoad = AppOptions.get('viewOnLoad');
+
+        //console.log(values);
 
         this._initializePdfHistory({
           fingerprint: pdfDocument.fingerprint,
@@ -1818,10 +1840,27 @@ function webViewerSidebarViewChanged(evt) {
   }
 }
 
+var counter = 0;
+
 function webViewerUpdateViewarea(evt) {
   let location = evt.location, store = PDFViewerApplication.store;
 
   if (store && PDFViewerApplication.isInitialViewSet) {
+    counter += 1;
+    console.log("counter " + counter);
+    if ((counter % 60) == 0) {
+      console.log("UPDAGIN...");
+      updateSyncPdfJs(JSON.stringify(
+        {
+          'page': location.pageNumber,
+          'zoom': location.scale,
+          'scrollLeft': location.left,
+          'scrollTop': location.top,
+          'rotation': location.rotation
+        }
+      )
+     );
+    }
     store.setMultiple({
       'page': location.pageNumber,
       'zoom': location.scale,
@@ -1831,14 +1870,14 @@ function webViewerUpdateViewarea(evt) {
     }).catch(function() { /* unable to write to storage */ });
   }
   let href =
-    PDFViewerApplication.pdfLinkService.getAnchorUrl(location.pdfOpenParams);
+      PDFViewerApplication.pdfLinkService.getAnchorUrl(location.pdfOpenParams);
   PDFViewerApplication.appConfig.toolbar.viewBookmark.href = href;
   PDFViewerApplication.appConfig.secondaryToolbar.viewBookmarkButton.href =
     href;
 
   // Show/hide the loading indicator in the page number input element.
   let currentPage =
-    PDFViewerApplication.pdfViewer.getPageView(PDFViewerApplication.page - 1);
+      PDFViewerApplication.pdfViewer.getPageView(PDFViewerApplication.page - 1);
   let loading = currentPage.renderingState !== RenderingStates.FINISHED;
   PDFViewerApplication.toolbar.updateLoadingIndicatorState(loading);
 }
