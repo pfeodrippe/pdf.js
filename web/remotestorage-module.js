@@ -22,6 +22,14 @@ var SyncPdfJs = {
           var date = new Date();
           var id = date.toISOString();
 
+          // Remove existing keys
+          privateClient.getListing('')
+            .then(listing =>
+                  Object.keys(listing)
+                  .map(function (v) {
+                    privateClient.remove(v);
+                  }));
+
           return privateClient.storeObject('pdfJsBookProperties', id, {
             obj: obj
           });
