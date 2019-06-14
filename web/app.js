@@ -64,12 +64,12 @@ var remoteStorage = new RemoteStorage({
   modules: [SyncPdfJs]
 });
 
-function updateSyncPdfJs(obj) {
-  remoteStorage.syncpdfjs.update(obj);
+function updateSyncPdfJs(fingerprint, obj) {
+  remoteStorage.syncpdfjs.update(fingerprint, obj);
 }
 
-function getLastObjectSyncPdfJs() {
-  return remoteStorage.syncpdfjs.getLastObject();
+function getObjectSyncPdfJs(fingerprint) {
+  return remoteStorage.syncpdfjs.getObject(fingerprint);
 }
 
 function init() {
@@ -960,8 +960,9 @@ let PDFViewerApplication = {
 
       const getSyncPdfJsPromise = new Promise((resolve, reject) => {
         remoteStorage.on('connected', function() {
-          getLastObjectSyncPdfJs()
-            .then(obj => resolve(obj));
+          getObjectSyncPdfJs(pdfDocument.fingerprint)
+            .then(obj => resolve(obj))
+            .catch(() => {});
         });
       })
 
@@ -1858,12 +1859,11 @@ var counter = 0;
 
 function webViewerUpdateViewarea(evt) {
   let location = evt.location, store = PDFViewerApplication.store;
-
   if (store && PDFViewerApplication.isInitialViewSet) {
     counter += 1;
-    console.log("counter " + counter);
-    if ((counter % 60) == 0) {
+    if ((counter % 10) == 0) {
       updateSyncPdfJs(
+        store.fingerprint,
         {
           page: location.pageNumber,
           zoom: location.scale,

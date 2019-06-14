@@ -1,3 +1,5 @@
+var canUpdate = true;
+
 var SyncPdfJs = {
   name: 'syncpdfjs',
   builder: function(privateClient) {
@@ -22,29 +24,22 @@ var SyncPdfJs = {
 
         on: privateClient.on,
 
-        update: function(obj) {
-          var date = new Date();
-          var id = "PDFStorage#" + date.toISOString();
+        update: function(fingerprint, obj) {
+          var id = fingerprint;
 
-          // Remove existing keys
-          privateClient.getListing('')
-            .then(listing => {
-                    console.log(listing);
-                    Object.keys(listing)
-                      .map(function (v) {
-                        privateClient.remove(v);
-                      });
-                    privateClient.storeObject('pdfJsBookProperties', id, obj);
-                  });
+          console.log(canUpdate);
+
+          if (canUpdate == true) {
+            canUpdate = false;
+            privateClient
+              .storeObject('pdfJsBookProperties', id, obj)
+              .then(() => canUpdate = true)
+              .catch((err) => canUpdate = true);
+          }
         },
 
-        getLastObject: function() {
-          return privateClient.getListing('')
-            .then(listing => {
-              let paths = Object.keys(listing);
-              let lastPath = paths[paths.length - 1];
-              return privateClient.getObject(lastPath);
-            })
+        getObject: function(fingerprint) {
+          return privateClient.getObject(fingerprint);
         }
       }
     }
