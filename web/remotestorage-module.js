@@ -20,22 +20,22 @@ var SyncPdfJs = {
 
         update: function(obj) {
           var date = new Date();
-          var id = date.toISOString();
+          var id = "PDFStorage#" + date.toISOString();
 
           // Remove existing keys
           privateClient.getListing('')
             .then(listing =>
-                  Object.keys(listing)
-                  .map(function (v) {
-                    privateClient.remove(v);
-                  }));
-
-          return privateClient.storeObject('pdfJsBookProperties', id, {
-            obj: obj
-          });
+                  {
+                    console.log(listing);
+                    Object.keys(listing)
+                      .map(function (v) {
+                        privateClient.remove(v);
+                      });
+                    privateClient.storeObject('pdfJsBookProperties', id, {
+                      obj: obj
+                    });
+                  });
         }
-
-        //removeDrink: privateClient.remove.bind(privateClient),
       }
     }
   }
