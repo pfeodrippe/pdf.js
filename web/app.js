@@ -69,12 +69,20 @@ function updateSyncPdfJs(obj) {
   remoteStorage.syncpdfjs.update(obj);
 }
 
+function getLastObjectSyncPdfJs() {
+  return remoteStorage.syncpdfjs.getLastObject();
+}
+
 function init() {
   remoteStorage.access.claim('syncpdfjs', 'rw');
   remoteStorage.caching.enable('/syncpdfjs/');
   var widget = new Widget(remoteStorage);
   widget.attach();
   remoteStorage.syncpdfjs.init();
+  remoteStorage.on('connected', function() {
+    getLastObjectSyncPdfJs()
+      .then(obj => console.log(obj));
+  });
 }
 
 const DefaultExternalServices = {

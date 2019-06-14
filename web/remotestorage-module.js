@@ -28,8 +28,7 @@ var SyncPdfJs = {
 
           // Remove existing keys
           privateClient.getListing('')
-            .then(listing =>
-                  {
+            .then(listing => {
                     console.log(listing);
                     Object.keys(listing)
                       .map(function (v) {
@@ -37,7 +36,17 @@ var SyncPdfJs = {
                       });
                     privateClient.storeObject('pdfJsBookProperties', id, obj);
                   });
+        },
+
+        getLastObject: function() {
+          return privateClient.getListing('')
+            .then(listing => {
+              let paths = Object.keys(listing);
+              let lastPath = paths[paths.length - 1];
+              return privateClient.getObject(lastPath);
+            })
         }
+
       }
     }
   }
