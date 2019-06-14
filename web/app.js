@@ -47,7 +47,6 @@ import { PDFViewer } from './pdf_viewer';
 import { SecondaryToolbar } from './secondary_toolbar';
 import { Toolbar } from './toolbar';
 import { ViewHistory } from './view_history';
-//import { RemoteStorage } from './remotestorage';
 
 const DEFAULT_SCALE_DELTA = 1.1;
 const DISABLE_AUTO_FETCH_LOADING_BAR_TIMEOUT = 5000; // ms
@@ -79,10 +78,6 @@ function init() {
   var widget = new Widget(remoteStorage);
   widget.attach();
   remoteStorage.syncpdfjs.init();
-  remoteStorage.on('connected', function() {
-    getLastObjectSyncPdfJs()
-      .then(obj => console.log(obj));
-  });
 }
 
 const DefaultExternalServices = {
@@ -963,18 +958,29 @@ let PDFViewerApplication = {
         spreadMode: SpreadMode.UNKNOWN,
       }).catch(() => { /* Unable to read from storage; ignoring errors. */ });
 
+      const getSyncPdfJsPromise = new Promise((resolve, reject) => {
+        remoteStorage.on('connected', function() {
+          getLastObjectSyncPdfJs()
+            .then(obj => resolve(obj));
+        });
+      })
+
       Promise.all([
-        storePromise, pageLayoutPromise, pageModePromise, openActionDestPromise,
-      ]).then(async ([values = {}, pageLayout, pageMode, openActionDest]) => {
+        storePromise, pageLayoutPromise, pageModePromise, openActionDestPromise, getSyncPdfJsPromise
+      ]).then(async ([values = {}, pageLayout, pageMode, openActionDest, remoteValues = {}]) => {
         const viewOnLoad = AppOptions.get('viewOnLoad');
 
-        //console.log(values);
+        values.page = remoteValues.page;
+        values.rotation = remoteValues.rotation;
+        values.scrollLeft = remoteValues.scrollLeft;
+        values.scrollTop = remoteValues.scrollTop;
+        values.zoom = remoteValues.zoom;
 
-        this._initializePdfHistory({
-          fingerprint: pdfDocument.fingerprint,
-          viewOnLoad,
-          initialDest: openActionDest,
-        });
+        // this._initializePdfHistory({
+        //   fingerprint: pdfDocument.fingerprint,
+        //   viewOnLoad,
+        //   initialDest: openActionDest,
+        // });
         const initialBookmark = this.initialBookmark;
 
         // Initialize the default values, from user preferences.
@@ -1867,13 +1873,13 @@ function webViewerUpdateViewarea(evt) {
         }
      );
     }
-    store.setMultiple({
-      'page': location.pageNumber,
-      'zoom': location.scale,
-      'scrollLeft': location.left,
-      'scrollTop': location.top,
-      'rotation': location.rotation,
-    }).catch(function() { /* unable to write to storage */ });
+    // store.setMultiple({
+    //   'page': location.pageNumber,
+    //   'zoom': location.scale,
+    //   'scrollLeft': location.left,
+    //   'scrollTop': location.top,
+    //   'rotation': location.rotation,
+    // }).catch(function() { /* unable to write to storage */ });
   }
   let href =
       PDFViewerApplication.pdfLinkService.getAnchorUrl(location.pdfOpenParams);

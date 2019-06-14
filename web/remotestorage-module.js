@@ -46,7 +46,6 @@ var SyncPdfJs = {
               return privateClient.getObject(lastPath);
             })
         }
-
       }
     }
   }
