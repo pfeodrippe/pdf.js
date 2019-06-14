@@ -4,9 +4,13 @@ var SyncPdfJs = {
     privateClient.declareType('pdfJsBookProperties', {
       type: 'object',
       properties: {
-        obj: { type: 'string' }
+        page: {type: 'integer'},
+        zoom: {type: 'string'},
+        scrollLeft: {type: 'integer'},
+        scrollTop: {type: 'integer'},
+        rotation: {type: 'number'}
       },
-      required: ['obj']
+      required: ['page', 'zoom', 'scrollLeft', 'scrollTop', 'rotation']
     });
 
     return {
@@ -31,9 +35,7 @@ var SyncPdfJs = {
                       .map(function (v) {
                         privateClient.remove(v);
                       });
-                    privateClient.storeObject('pdfJsBookProperties', id, {
-                      obj: obj
-                    });
+                    privateClient.storeObject('pdfJsBookProperties', id, obj);
                   });
         }
       }

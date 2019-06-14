@@ -1849,16 +1849,14 @@ function webViewerUpdateViewarea(evt) {
     counter += 1;
     console.log("counter " + counter);
     if ((counter % 60) == 0) {
-      console.log("UPDAGIN...");
-      updateSyncPdfJs(JSON.stringify(
+      updateSyncPdfJs(
         {
-          'page': location.pageNumber,
-          'zoom': location.scale,
-          'scrollLeft': location.left,
-          'scrollTop': location.top,
-          'rotation': location.rotation
+          page: location.pageNumber,
+          zoom: location.scale,
+          scrollLeft: location.left,
+          scrollTop: location.top,
+          rotation: location.rotation
         }
-      )
      );
     }
     store.setMultiple({
