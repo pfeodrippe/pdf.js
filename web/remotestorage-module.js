@@ -1,5 +1,3 @@
-var canUpdate = true;
-
 var SyncPdfJs = {
   name: 'syncpdfjs',
   builder: function(privateClient) {
@@ -27,15 +25,8 @@ var SyncPdfJs = {
         update: function(fingerprint, obj) {
           var id = fingerprint;
 
-          console.log(canUpdate);
-
-          if (canUpdate == true) {
-            canUpdate = false;
-            privateClient
-              .storeObject('pdfJsBookProperties', id, obj)
-              .then(() => canUpdate = true)
-              .catch((err) => canUpdate = true);
-          }
+          return privateClient
+              .storeObject('pdfJsBookProperties', id, obj);
         },
 
         getObject: function(fingerprint) {

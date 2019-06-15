@@ -47,6 +47,7 @@ import { PDFViewer } from './pdf_viewer';
 import { SecondaryToolbar } from './secondary_toolbar';
 import { Toolbar } from './toolbar';
 import { ViewHistory } from './view_history';
+import { AsyncLock } from './async-lock';
 
 const DEFAULT_SCALE_DELTA = 1.1;
 const DISABLE_AUTO_FETCH_LOADING_BAR_TIMEOUT = 5000; // ms
@@ -59,13 +60,23 @@ const ViewOnLoad = {
   INITIAL: 1,
 };
 
+var lock = new AsyncLock();
+
 var remoteStorage = new RemoteStorage({
   changeEvents: { local: true, window: true, remote: true, conflicts: true },
   modules: [SyncPdfJs]
 });
 
 function updateSyncPdfJs(fingerprint, obj) {
-  remoteStorage.syncpdfjs.update(fingerprint, obj);
+
+  console.log("Busy: " + lock.isBusy(fingerprint));
+  lock.acquire(
+    fingerprint,
+    () => {
+      return remoteStorage.syncpdfjs.update(fingerprint, obj);
+    }
+  )
+    .then(() => {});
 }
 
 function getObjectSyncPdfJs(fingerprint) {
