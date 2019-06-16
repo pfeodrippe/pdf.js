@@ -17,7 +17,7 @@ var SyncPdfJs = {
       exports: {
 
         init: function() {
-          privateClient.cache('');
+          privateClient.cache('/syncpdfjs/', 'FLUSH');
         },
 
         on: privateClient.on,

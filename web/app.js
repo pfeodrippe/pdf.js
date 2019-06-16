@@ -61,23 +61,32 @@ const ViewOnLoad = {
 };
 
 var lock = new AsyncLock();
+var pdfJsData = -1;
+var hasPdfJSDataChanged = false;
 
 var remoteStorage = new RemoteStorage({
+  cache: false,
   changeEvents: { local: true, window: true, remote: true, conflicts: true },
   modules: [SyncPdfJs]
 });
 
-function updateSyncPdfJs(fingerprint, obj) {
-
-  console.log("Busy: " + lock.isBusy(fingerprint));
-  lock.acquire(
-    fingerprint,
-    () => {
-      return remoteStorage.syncpdfjs.update(fingerprint, obj);
-    }
-  )
-    .then(() => {});
+function updateSyncData(fingerprint, obj) {
+  hasPdfJSDataChanged = true;
+  pdfJsData = {
+    fingerprint: fingerprint,
+    obj: obj
+  };
 }
+
+setInterval(() => {
+  if (pdfJsData != -1 && hasPdfJSDataChanged == true) {
+    remoteStorage.syncpdfjs.update(pdfJsData.fingerprint,
+                                   pdfJsData.obj);
+    hasPdfJSDataChanged = false;
+  }
+  else {
+  }
+},2000);
 
 function getObjectSyncPdfJs(fingerprint) {
   return remoteStorage.syncpdfjs.getObject(fingerprint);
@@ -85,7 +94,6 @@ function getObjectSyncPdfJs(fingerprint) {
 
 function init() {
   remoteStorage.access.claim('syncpdfjs', 'rw');
-  remoteStorage.caching.enable('/syncpdfjs/');
   var widget = new Widget(remoteStorage);
   widget.attach();
   remoteStorage.syncpdfjs.init();
@@ -971,6 +979,8 @@ let PDFViewerApplication = {
 
       const getSyncPdfJsPromise = new Promise((resolve, reject) => {
         remoteStorage.on('connected', function() {
+          remoteStorage.caching.disable('/syncpdfjs/');
+          remoteStorage.caching.reset();
           getObjectSyncPdfJs(pdfDocument.fingerprint)
             .then(obj => resolve(obj))
             .catch(() => {});
@@ -1872,8 +1882,8 @@ function webViewerUpdateViewarea(evt) {
   let location = evt.location, store = PDFViewerApplication.store;
   if (store && PDFViewerApplication.isInitialViewSet) {
     counter += 1;
-    if ((counter % 10) == 0) {
-      updateSyncPdfJs(
+    if ((counter % 1) == 0) {
+      updateSyncData(
         store.fingerprint,
         {
           page: location.pageNumber,
