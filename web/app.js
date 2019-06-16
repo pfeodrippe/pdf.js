@@ -47,7 +47,6 @@ import { PDFViewer } from './pdf_viewer';
 import { SecondaryToolbar } from './secondary_toolbar';
 import { Toolbar } from './toolbar';
 import { ViewHistory } from './view_history';
-import { AsyncLock } from './async-lock';
 
 const DEFAULT_SCALE_DELTA = 1.1;
 const DISABLE_AUTO_FETCH_LOADING_BAR_TIMEOUT = 5000; // ms
@@ -60,9 +59,9 @@ const ViewOnLoad = {
   INITIAL: 1,
 };
 
-var lock = new AsyncLock();
 var pdfJsData = -1;
 var hasPdfJSDataChanged = false;
+var isRemoteStorageConnected = false;
 
 var remoteStorage = new RemoteStorage({
   cache: false,
@@ -79,7 +78,9 @@ function updateSyncData(fingerprint, obj) {
 }
 
 setInterval(() => {
-  if (pdfJsData != -1 && hasPdfJSDataChanged == true) {
+  if (pdfJsData != -1 &&
+      hasPdfJSDataChanged == true &&
+      isRemoteStorageConnected == true) {
     remoteStorage.syncpdfjs.update(pdfJsData.fingerprint,
                                    pdfJsData.obj);
     hasPdfJSDataChanged = false;
@@ -979,6 +980,8 @@ let PDFViewerApplication = {
 
       const getSyncPdfJsPromise = new Promise((resolve, reject) => {
         remoteStorage.on('connected', function() {
+          console.log('Remote storage connected!');
+          isRemoteStorageConnected = true;
           remoteStorage.caching.disable('/syncpdfjs/');
           remoteStorage.caching.reset();
           getObjectSyncPdfJs(pdfDocument.fingerprint)
