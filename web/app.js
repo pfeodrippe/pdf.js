@@ -985,7 +985,9 @@ let PDFViewerApplication = {
           remoteStorage.caching.disable('/syncpdfjs/');
           remoteStorage.caching.reset();
           getObjectSyncPdfJs(pdfDocument.fingerprint)
-            .then(obj => resolve(obj))
+            .then(obj => {
+              resolve(obj);
+            })
             .catch(() => {});
         });
       })

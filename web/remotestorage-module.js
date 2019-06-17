@@ -5,7 +5,12 @@ var SyncPdfJs = {
       type: 'object',
       properties: {
         page: {type: 'integer'},
-        zoom: {type: 'string'},
+        zoom: {
+          "oneOf": [
+            {"type": "number"},
+            {"type": "string"}
+          ]
+        },
         scrollLeft: {type: 'integer'},
         scrollTop: {type: 'integer'},
         rotation: {type: 'number'}
@@ -26,7 +31,7 @@ var SyncPdfJs = {
           var id = fingerprint;
 
           return privateClient
-              .storeObject('pdfJsBookProperties', id, obj);
+            .storeObject('pdfJsBookProperties', id, obj);
         },
 
         getObject: function(fingerprint) {
