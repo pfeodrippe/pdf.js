@@ -17,6 +17,9 @@ import {
   FONT_IDENTITY_MATRIX, IDENTITY_MATRIX, ImageKind, info, isLittleEndian, isNum,
   OPS, shadow, TextRenderingMode, unreachable, Util, warn
 } from '../shared/util';
+import {
+  Filters
+} from './filters';
 import { getShadingPatternFromIR, TilingPattern } from './pattern_helper';
 
 // <canvas> contexts store most of the state we need natively.
@@ -1966,8 +1969,10 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
         j++; // Advance current the increment
       }
 
-      imgData.data.set(buf8);
-      ctx.putImageData(imgData, 0, 0);
+      //imgData.data.set(buf8);
+      //ctx.putImageData(imgData, 0, 0);
+
+      ctx.putImageData(Filters.brightnessContrast(imgData, 0, 2), 0, 0);
 
 
 
