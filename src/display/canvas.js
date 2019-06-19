@@ -1942,6 +1942,35 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
 
       ctx.drawImage(domImage, 0, 0, domImage.width, domImage.height,
                     0, -h, w, h);
+
+
+
+      var imgData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+      var buf = new ArrayBuffer(imgData.data.length);
+      var buf8 = new Uint8ClampedArray(buf);
+      var data = new Uint32Array(buf);
+
+      var j=0;
+      for (var i = 0; i < imgData.data.length; i += 4) {
+        var grey = (0.2126 * imgData.data[i]) + (0.7152 * imgData.data[i + 1]) + (0.0722 * imgData.data[i + 2]);
+
+        if ((grey < 230.0) && (grey > 180.0)) {
+          grey = 228.0;
+        }
+
+        data[j] =
+          (255  << 24) |    // alpha
+          (grey << 16) |    // blue
+          (grey <<  8) |    // green
+          grey;            // red
+        j++; // Advance current the increment
+      }
+
+      imgData.data.set(buf8);
+      ctx.putImageData(imgData, 0, 0);
+
+
+
       if (this.imageLayer) {
         var currentTransform = ctx.mozCurrentTransformInverse;
         var position = this.getCanvasPosition(0, 0);
