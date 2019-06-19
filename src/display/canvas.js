@@ -45,6 +45,14 @@ var IsLittleEndianCached = {
   },
 };
 
+var useFilter = false;
+
+window.addEventListener('keydown', function keydown(event) {
+  if (event.code == "KeyE") {
+    useFilter = !useFilter;
+  }
+});
+
 function addContextCurrentTransform(ctx) {
   // If the context doesn't expose a `mozCurrentTransform`, add a JS based one.
   if (!ctx.mozCurrentTransform) {
@@ -1972,7 +1980,9 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
       //imgData.data.set(buf8);
       //ctx.putImageData(imgData, 0, 0);
 
-      ctx.putImageData(Filters.brightnessContrast(imgData, 0, 2), 0, 0);
+      if (useFilter == true) {
+        ctx.putImageData(Filters.brightnessContrast(imgData, 0, 2), 0, 0);
+      }
 
 
 
