@@ -160,6 +160,7 @@ function getViewerConfiguration() {
         'subject': document.getElementById('subjectField'),
         'keywords': document.getElementById('keywordsField'),
         'creationDate': document.getElementById('creationDateField'),
+        'syncInfo': document.getElementById('syncInfoField'),
         'modificationDate': document.getElementById('modificationDateField'),
         'creator': document.getElementById('creatorField'),
         'producer': document.getElementById('producerField'),

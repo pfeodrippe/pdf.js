@@ -1981,7 +1981,8 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
       //ctx.putImageData(imgData, 0, 0);
 
       if (useFilter == true) {
-        ctx.putImageData(Filters.brightnessContrast(imgData, 0, 2), 0, 0);
+        let imgWithContrast = Filters.brightnessContrast(imgData, 0, 2);
+        ctx.putImageData(imgWithContrast, 0, 0);
       }
 
 

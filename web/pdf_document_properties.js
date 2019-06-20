@@ -140,6 +140,7 @@ class PDFDocumentProperties {
           'subject': info.Subject,
           'keywords': info.Keywords,
           'creationDate': creationDate,
+          'syncInfo': this.syncInfo,
           'modificationDate': modDate,
           'creator': info.Creator,
           'producer': info.Producer,
@@ -212,6 +213,10 @@ class PDFDocumentProperties {
     if (Number.isInteger(fileSize) && fileSize > 0) {
       this.maybeFileSize = fileSize;
     }
+  }
+
+  setSyncInfo(syncInfo) {
+    this.syncInfo = syncInfo;
   }
 
   /**

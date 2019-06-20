@@ -77,18 +77,6 @@ function updateSyncData(fingerprint, obj) {
   };
 }
 
-setInterval(() => {
-  if (pdfJsData != -1 &&
-      hasPdfJSDataChanged == true &&
-      isRemoteStorageConnected == true) {
-    remoteStorage.syncpdfjs.update(pdfJsData.fingerprint,
-                                   pdfJsData.obj);
-    hasPdfJSDataChanged = false;
-  }
-  else {
-  }
-},2000);
-
 function getObjectSyncPdfJs(fingerprint) {
   return remoteStorage.syncpdfjs.getObject(fingerprint);
 }
@@ -189,6 +177,21 @@ let PDFViewerApplication = {
     await this._readPreferences();
     await this._parseHashParameters();
     await this._initializeL10n();
+
+    setInterval(() => {
+      if (pdfJsData != -1 &&
+          hasPdfJSDataChanged == true &&
+          isRemoteStorageConnected == true) {
+        remoteStorage.syncpdfjs.update(pdfJsData.fingerprint,
+                                       pdfJsData.obj)
+          .then(() => {
+            this.pdfDocumentProperties.setSyncInfo(new Date());
+          });
+        hasPdfJSDataChanged = false;
+      }
+      else {
+      }
+    },2000);
 
     if (this.isViewerEmbedded &&
         AppOptions.get('externalLinkTarget') === LinkTarget.NONE) {
