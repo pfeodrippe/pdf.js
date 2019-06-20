@@ -480,6 +480,17 @@ class BaseViewer {
     }).catch((reason) => {
       console.error('Unable to initialize viewer', reason);
     });
+
+    var self = this;
+
+    window.addEventListener('keydown', function keydown(event) {
+      if (event.code == "KeyE") {
+        for (let i = 0, ii = self._pages.length; i < ii; i++) {
+          self._pages[i].update(self._currentScale);
+        }
+        self.update();
+      }
+    });
   }
 
   /**
