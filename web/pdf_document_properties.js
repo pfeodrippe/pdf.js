@@ -105,15 +105,6 @@ class PDFDocumentProperties {
       const currentPageNumber = this._currentPageNumber;
       const pagesRotation = this._pagesRotation;
 
-      // If the document properties were previously fetched (for this PDF file),
-      // just update the dialog immediately to avoid redundant lookups.
-      if (this.fieldData &&
-          currentPageNumber === this.fieldData['_currentPageNumber'] &&
-          pagesRotation === this.fieldData['_pagesRotation']) {
-        this._updateUI();
-        return;
-      }
-
       // Get the document properties.
       this.pdfDocument.getMetadata().then(
           ({ info, metadata, contentDispositionFilename, }) => {
